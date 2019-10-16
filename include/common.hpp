@@ -21,6 +21,7 @@
 #include "anna.pb.h"
 #include "lattices/lww_pair_lattice.hpp"
 #include "lattices/multi_key_causal_lattice.hpp"
+#include "lattices/priority_lattice.hpp"
 #include "lattices/single_key_causal_lattice.hpp"
 #include "types.hpp"
 #include "zmq/socket_cache.hpp"
@@ -188,6 +189,16 @@ inline string serialize(const MultiKeyCausalLattice<SetLattice<string>>& l) {
   return serialized;
 }
 
+inline string serialize(const PriorityLattice<double, string>& l) {
+  PriorityValue priority_value;
+  priority_value.set_priority(l.reveal().priority);
+  priority_value.set_value(l.reveal().value);
+
+  string serialized;
+  priority_value.SerializeToString(&serialized);
+  return serialized;
+}
+
 inline LWWPairLattice<string> deserialize_lww(const string& serialized) {
   LWWValue lww;
   lww.ParseFromString(serialized);
@@ -233,6 +244,14 @@ inline MultiKeyCausalValue deserialize_multi_key_causal(
   mk_causal.ParseFromString(serialized);
 
   return mk_causal;
+}
+
+inline PriorityLattice<double, string> deserialize_priority(
+    const string& serialized) {
+  PriorityValue pv;
+  pv.ParseFromString(serialized);
+  return PriorityLattice<double, string>(
+      PriorityValuePair<double, string>(pv.priority(), pv.value()));
 }
 
 inline VectorClockValuePair<SetLattice<string>> to_vector_clock_value_pair(

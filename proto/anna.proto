@@ -46,6 +46,9 @@ enum LatticeType {
 
   // Ordered-set lattice
   ORDERED_SET = 5;
+
+  // Priority lattice
+  PRIORITY = 6;
 }
 
 enum AnnaError {
@@ -209,4 +212,13 @@ message MultiKeyCausalValue {
   
   // The set of potentially causally concurrent values for this key.
   repeated bytes values = 3;
+}
+
+// Serialization of lowest-priority-wins lattices.
+message PriorityValue {
+  // The priority associated with this data
+  double priority = 1;
+  
+  // The actual data stored by this PriorityValue
+  bytes value = 2;
 }
