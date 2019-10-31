@@ -19,10 +19,10 @@
 
 template <class P, class V>
 struct PriorityValuePair {
-  P priority;
+  P priority = 1000000.0; // Initialize at a high value since a zero initialization is never updated
   V value;
 
-  PriorityValuePair(P p = 0, V v = {}) : priority(p), value(v) {}
+  PriorityValuePair(P p = 1000000.0, V v = {}) : priority(p), value(v) {}
 
   unsigned size() { return sizeof(P) + value.size(); }
 };
