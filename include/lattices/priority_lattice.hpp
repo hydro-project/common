@@ -22,7 +22,7 @@ struct PriorityValuePair {
   P priority;
   V value;
 
-  PriorityValuePair(P p = 0, V v = {}) : priority(p), value(v) {}
+  PriorityValuePair(P p = 1000000, V v = {}) : priority(p), value(v) {}
 
   unsigned size() { return sizeof(P) + value.size(); }
 };
