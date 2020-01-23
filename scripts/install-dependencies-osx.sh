@@ -14,6 +14,9 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
+LCOV_VERSION=1.13
+PROTO_V=3.9.1
+
 if [ -z "$(command -v brew)" ]; then
   echo "This script requires having homebrew installed."
   echo "Please follow the instructions at https://brew.sh."
@@ -41,8 +44,6 @@ if [ -z "$(command -v cmake)" ]; then
 fi
 
 if [ -z "$(command -v lcov)" ]; then
-  LCOV_VERSION=1.13
-
   echo "Installing lcov..."
   echo "You might be asked for your password to install lcov..."
   wget http://downloads.sourceforge.net/ltp/lcov-${LCOV_VERSION}.tar.gz
@@ -61,7 +62,7 @@ fi
 if [ -z "$(command -v protoc)" ]; then
   echo "Installing protobuf..."
   echo "You might be prompted for your password to install the protobuf headers and set ldconfig."
-  PROTO_V=3.5.1
+
   wget https://github.com/google/protobuf/releases/download/v${PROTO_V}/protobuf-all-${PROTO_V}.zip > /dev/null
   unzip protobuf-all-${PROTO_V} > /dev/null
   cd protobuf-${PROTO_V}

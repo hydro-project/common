@@ -27,9 +27,9 @@ enum SerializerType {
 }
 
 // The error type returned by an executor or scheduler for an individual request.
-enum DropletError {
+enum CloudburstError {
   // This request did not generate an error.
-  NO_DROPLET_ERROR = 0;
+  NO_CLOUDBURST_ERROR = 0;
 
   // The requested function was not stored in the KVS. This might occasionally
   // occur because of the eventual nature of the KVS.
@@ -109,7 +109,7 @@ message FunctionCall {
   ConsistencyType consistency = 5;
 }
 
-// A serialized representation of a Droplet DAG, which consists of a set of
+// A serialized representation of a Cloudburst DAG, which consists of a set of
 // functions and links between pairs of functions.
 message Dag {
   // A representation of a link between a specific pair of functions in the
@@ -181,7 +181,7 @@ message GenericResponse {
 
   // An optional field to inform the user what the error was if the request was
   // not successful.
-  DropletError error = 3;
+  CloudburstError error = 3;
 }
 
 // A message representing a generated schedule for an individual DAG execution

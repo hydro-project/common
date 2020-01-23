@@ -15,7 +15,7 @@
 syntax = "proto3";
 
 import "anna.proto";
-import "droplet.proto";
+import "cloudburst.proto";
 import "shared.proto";
 
 // A message representing an individual tuple when the system is operating in
@@ -37,7 +37,7 @@ message CausalRequest {
   // The consistency mode that the request is being run in -- this should only
   // be SINGLE or MULTI.
   ConsistencyType consistency = 1;
-  
+
   // The unique ID of the client that is making this request -- this may be
   // independent from the physical node on which the request is running.
   string id = 2;
@@ -66,7 +66,7 @@ message CausalResponse {
   // The address of the cache that serviced this request -- this used to
   // propagate causal metadata to downstream executors.
   string key_version_query_address = 2;
-  
+
   // The set of keys relevant to this DAG that are being cached at the above
   // address to service queries by downstream caches.
   repeated KeyVersion key_versions = 3;
