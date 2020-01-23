@@ -22,7 +22,8 @@ struct PriorityValuePair {
   P priority;
   V value;
 
-  PriorityValuePair(P p = 0, V v = {}) : priority(p), value(v) {}
+  // Initialize at a high value since the merge logic is taking the minimum
+  PriorityValuePair(P p = INT_MAX, V v = {}) : priority(p), value(v) {}
 
   unsigned size() { return sizeof(P) + value.size(); }
 };
