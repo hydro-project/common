@@ -14,7 +14,7 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-PROTO_V=3.5.1
+PROTO_V=3.9.1
 LCOV_VERSION=1.13
 
 if [ ! -z "$(command -v apt-get)" ]; then
