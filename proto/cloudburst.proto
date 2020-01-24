@@ -24,6 +24,9 @@ enum SerializerType {
 
   // The numpy serializer uses PyArrow for maximum efficiency.
   NUMPY = 1;
+
+  // A serializer to manage UTF-8 strings.
+  STRING = 2;
 }
 
 // The error type returned by an executor or scheduler for an individual request.
