@@ -55,6 +55,16 @@ class LWWPairLattice : public Lattice<TimestampValuePair<T>> {
   LWWPairLattice(const TimestampValuePair<T>& p) :
       Lattice<TimestampValuePair<T>>(p) {}
   MaxLattice<unsigned> size() { return {this->element.size()}; }
+
+  inline string serialize() {
+  LWWValue lww_value;
+  lww_value.set_timestamp(this->element.timestamp);
+  lww_value.set_value(this->element.value);
+
+  string serialized;
+  lww_value.SerializeToString(&serialized);
+  return serialized;
+}
 };
 
 #endif  // INCLUDE_LATTICES_LWW_PAIR_LATTICE_HPP_

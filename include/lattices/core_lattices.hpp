@@ -87,6 +87,18 @@ class SetLattice : public Lattice<set<T>> {
 
     return SetLattice<T>(res);
   }
+  
+  inline string serialize() {
+  SetValue set_value;
+  for (const string& val : this->element) {
+    set_value.add_values(val);
+  }
+
+  string serialized;
+  set_value.SerializeToString(&serialized);
+  return serialized;
+}
+
 };
 
 template <typename T>
