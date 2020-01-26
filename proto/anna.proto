@@ -98,6 +98,10 @@ message KeyTuple {
   // A boolean set by the server if the client's address_cache_size does not
   // match the metadata stored by the server.
   bool invalidate = 6;
+  
+  // A boolean set by the server if the client's requested value doesn't change
+  // since the last request
+  bool delta = 7;
 }
 
 // An individual GET or PUT request; each request can batch multiple keys.
