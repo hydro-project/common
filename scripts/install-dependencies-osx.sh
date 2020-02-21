@@ -34,9 +34,9 @@ if [ ! -f /usr/bin/clang++ ]; then
   sudo ln -s $(which clang++) /usr/bin/clang++
 fi
 
-echo -e "Installing the following packages via homebrew:\n\t* autoconf\n\t* automake\n\t* libtool\n\t* build-essential \n\t* unzip \n\t* pkg-config\n\t* wget"
+echo -e "Installing the following packages via homebrew:\n\t* autoconf\n\t* automake\n\t* libtool\n\t* build-essential \n\t* unzip \n\t* pkg-config\n\t* wget\n\t* zmq"
 
-brew install autoconf automake libtool make unzip pkg-config wget > /dev/null
+brew install autoconf automake libtool make unzip pkg-config wget zmq > /dev/null
 
 if [ -z "$(command -v cmake)" ]; then
   echo "Installing cmake..."
