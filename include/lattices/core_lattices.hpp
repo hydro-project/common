@@ -49,6 +49,54 @@ class MaxLattice : public Lattice<T> {
 };
 
 template <typename T>
+class SumLattice : public Lattice<vector<T>> {
+ protected:
+  void do_merge(const vector<T> &e) {
+    unsigned int size = this->element.size();
+    unsigned int e_size = e.size();
+    for (; size < e_size; size++) {
+      this->element.push_back(0);
+    }
+    for (int i = 0; i < e_size; i++) {
+      this->element[i] = this->element[i] + e[i];
+    }
+  }
+
+ public:
+  SumLattice() : Lattice<vector<T>>(vector<T>()) {}
+  SumLattice(const vector<T> &e) : Lattice<vector<T>>(e) {}
+
+  SumLattice<T> vadd(vector<T> v) const {
+    vector<T> res;
+    unsigned int size = this->element.size();
+    for (int i = 0; i < size; i++) {
+      res.push_back(this->element[i] + v[i]);
+    }
+    return SumLattice<T>(res);
+  }
+  // for now, all non-merge methods are non-destructive
+  SumLattice<T> add(T n) const {
+    vector<T> res;
+    unsigned int size = this->element.size();
+    for (int i = 0; i < size; i++) {
+      res.push_back(this->element[i] + n);
+    }
+    return SumLattice<T>(res);
+  }
+
+  SumLattice<T> subtract(T n) const {
+    vector<T> res;
+    unsigned int size = this->element.size();
+    for (int i = 0; i < size; i++) {
+      res.push_back(this->element[i] - n);
+    }
+    return SumLattice<T>(res);
+  }
+
+  MaxLattice<unsigned> size() const { return this->element.size(); }
+};
+
+template <typename T>
 class SetLattice : public Lattice<set<T>> {
  protected:
   void do_merge(const set<T> &e) {
@@ -193,8 +241,11 @@ class MapLattice : public Lattice<map<K, V>> {
     return SetLattice<K>(res);
   }
 
+  /*V &at(K k) const {
+          return this->element[k];
+  }*/
   V &at(K k) { return this->element[k]; }
-
+  // -fpermissive
   void remove(K k) {
     auto it = this->element.find(k);
     if (it != this->element.end()) this->element.erase(k);

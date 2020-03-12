@@ -49,6 +49,9 @@ enum LatticeType {
 
   // Priority lattice
   PRIORITY = 6;
+
+  // Sum lattice
+  SUM = 7;
 }
 
 enum AnnaError {
@@ -187,6 +190,11 @@ message LWWValue {
 message SetValue {
   // An unordered set of values in this lattice.
   repeated bytes values = 1;
+}
+
+// Serialization of float value lattices.
+message ListValue {
+  repeated float values = 1;
 }
 
 // Serialization of a single-key causal lattice.

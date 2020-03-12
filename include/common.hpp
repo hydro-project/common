@@ -118,6 +118,28 @@ inline string serialize(const SetLattice<string>& l) {
   set_value.SerializeToString(&serialized);
   return serialized;
 }
+// xyao
+inline string serialize(const SumLattice<float>& l) {
+  /*
+   SetValue set_value;
+
+   unsigned int size = l.reveal().size();
+   for(int i=0; i<size; i++){
+   set_value.add_values(std::to_string(l.reveal()[i]));
+   }
+
+   string serialized;
+   set_value.SerializeToString(&serialized);
+   return serialized;*/
+  ListValue list_value;
+  google::protobuf::RepeatedField<float> data(l.reveal().begin(),
+                                              l.reveal().end());
+  list_value.mutable_values()->Swap(&data);
+
+  string serialized;
+  list_value.SerializeToString(&serialized);
+  return serialized;
+}
 
 inline string serialize(const OrderedSetLattice<string>& l) {
   // We will just serialize ordered sets as regular sets for now;
@@ -218,6 +240,31 @@ inline SetLattice<string> deserialize_set(const string& serialized) {
   }
 
   return SetLattice<string>(result);
+}
+
+// xyao
+inline SumLattice<float> deserialize_sum(const string& serialized) {
+  /*
+  SetValue s;
+  s.ParseFromString(serialized);
+
+  vector<float> result;
+
+  for (const string& value : s.values()) {
+          result.push_back(std::stof(value));
+  }
+
+  return SumLattice<float>(result);*/
+
+  ListValue s;
+  s.ParseFromString(serialized);
+  int size = s.values_size();
+  vector<float> result(size);
+  memcpy(&result[0], s.mutable_values()->mutable_data(), sizeof(float) * size);
+  // from s -> vector float
+
+  return SumLattice<float>(result);
+  ;
 }
 
 inline OrderedSetLattice<string> deserialize_ordered_set(
