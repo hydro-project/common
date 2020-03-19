@@ -23,6 +23,7 @@
 #include "lattices/multi_key_causal_lattice.hpp"
 #include "lattices/priority_lattice.hpp"
 #include "lattices/single_key_causal_lattice.hpp"
+#include "lattices/top_k_priority_lattice.hpp"
 #include "types.hpp"
 #include "zmq/socket_cache.hpp"
 #include "zmq/zmq_util.hpp"
@@ -199,6 +200,20 @@ inline string serialize(const PriorityLattice<double, string>& l) {
   return serialized;
 }
 
+inline string serialize(const TopKPriorityLattice<double, string>& l) {
+  TopKPriorityValue top_k_priority_value;
+
+  for (const auto& p : l.reveal()) {
+    PriorityValue* pv = top_k_priority_value.add_values();
+    pv->set_priority(p.priority);
+    pv->set_value(p.value);
+  }
+
+  string serialized;
+  top_k_priority_value.SerializeToString(&serialized);
+  return serialized;
+}
+
 inline LWWPairLattice<string> deserialize_lww(const string& serialized) {
   LWWValue lww;
   lww.ParseFromString(serialized);
@@ -252,6 +267,21 @@ inline PriorityLattice<double, string> deserialize_priority(
   pv.ParseFromString(serialized);
   return PriorityLattice<double, string>(
       PriorityValuePair<double, string>(pv.priority(), pv.value()));
+}
+
+inline TopKPriorityLattice<double, string> deserialize_top_k_priority(
+    const string& serialized) {
+  TopKPriorityValue tkpv;
+
+  tkpv.ParseFromString(serialized);
+
+  std::set<PriorityValuePair<double, string>> result;
+
+  for (const auto& pv : tkpv.values()) {
+    result.insert(PriorityValuePair<double, string>(pv.priority(), pv.value()));
+  }
+
+  return TopKPriorityLattice<double, string>(result.size(), result);
 }
 
 inline VectorClockValuePair<SetLattice<string>> to_vector_clock_value_pair(

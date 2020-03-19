@@ -24,9 +24,34 @@ struct PriorityValuePair {
 
   // Initialize at a high value since the merge logic is taking the minimum
   PriorityValuePair(P p = INT_MAX, V v = {}) : priority(p), value(v) {}
-
+  
   unsigned size() { return sizeof(P) + value.size(); }
 };
+
+template <class P, class V, class CompareP = std::less<P>, class CompareV = std::less<V>>
+bool operator< (const PriorityValuePair<P,V>& a, const PriorityValuePair<P,V>& b) {
+    CompareP compare_p;
+    CompareV compare_v;
+    if (compare_p(a.priority, b.priority)) {
+      // return true if a.p < b.p
+      return true;
+    } else if (!compare_p(b.priority, a.priority) && compare_v(a.value, b.value)) {
+      return true;
+    } 
+    return false;
+}
+
+
+template <class P, class V, class CompareP = std::less<P>, class CompareV = std::less<V>>
+bool operator==(const PriorityValuePair<P,V>& a, const PriorityValuePair<P,V>& b) {
+    CompareP compare_p;
+    CompareV compare_v;
+    if (!compare_p(a.priority, b.priority) && !compare_p(b.priority, a.priority) 
+      && !compare_v(a.value, b.value) && !compare_v(b.value, a.value)) {
+      return true;
+    }
+    return false;
+}
 
 template <class P, class V, class Compare = std::less<P>>
 class PriorityLattice : public Lattice<PriorityValuePair<P, V>> {
