@@ -34,6 +34,7 @@ const string kMetadataIdentifier = "ANNA_METADATA";
 const string kMetadataDelimiter = "|";
 const char kMetadataDelimiterChar = '|';
 const string kMetadataTypeCacheIP = "cache_ip";
+const unsigned kNumShortestPaths = 5;
 
 inline void split(const string& s, char delim, vector<string>& elems) {
   std::stringstream ss(s);
@@ -200,7 +201,7 @@ inline string serialize(const PriorityLattice<double, string>& l) {
   return serialized;
 }
 
-inline string serialize(const TopKPriorityLattice<double, string>& l) {
+inline string serialize(const TopKPriorityLattice<double, string, kNumShortestPaths>& l) {
   TopKPriorityValue top_k_priority_value;
 
   for (const auto& p : l.reveal()) {
@@ -269,7 +270,7 @@ inline PriorityLattice<double, string> deserialize_priority(
       PriorityValuePair<double, string>(pv.priority(), pv.value()));
 }
 
-inline TopKPriorityLattice<double, string> deserialize_top_k_priority(
+inline TopKPriorityLattice<double, string, kNumShortestPaths> deserialize_top_k_priority(
     const string& serialized) {
   TopKPriorityValue tkpv;
 
@@ -278,10 +279,10 @@ inline TopKPriorityLattice<double, string> deserialize_top_k_priority(
   std::set<PriorityValuePair<double, string>> result;
 
   for (const auto& pv : tkpv.values()) {
-    result.insert(PriorityValuePair<double, string>(pv.priority(), pv.value()));
+    result.insert(std::move(PriorityValuePair<double, string>(std::move(pv.priority()), std::move(pv.value()))));
   }
 
-  return TopKPriorityLattice<double, string>(result.size(), result);
+  return TopKPriorityLattice<double, string, kNumShortestPaths>(result);
 }
 
 inline VectorClockValuePair<SetLattice<string>> to_vector_clock_value_pair(

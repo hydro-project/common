@@ -19,13 +19,13 @@
 #include "priority_lattice.hpp"
 
 
-template <class P, class V> 
+template <class P, class V, size_t K> 
 class TopKPriorityLattice : public Lattice<std::set<PriorityValuePair<P, V>>> {
   using Element = std::set<PriorityValuePair<P, V>>;
   using Base = Lattice<Element>;
 
  protected:
-  int k_;
+  int k_ = K;
   void do_merge(const Element& e) override {
     for (const auto& p: e) {
       this->element.insert(p);
@@ -38,16 +38,10 @@ class TopKPriorityLattice : public Lattice<std::set<PriorityValuePair<P, V>>> {
   }
 
  public:
-  TopKPriorityLattice() : Base(Element()) {
-    this->k_ = 1;
-  }
+  TopKPriorityLattice() : Base(Element()) {}
 
-  TopKPriorityLattice(int k) : Base(Element()) {
-    this->k_ = k;
-  }
-
-  TopKPriorityLattice(int k, Element e) : Base(e) {
-    this->k_ = k;
+  TopKPriorityLattice(Element e) : Base(Element()) {
+    this->merge(e);
   }
 
   MaxLattice<unsigned> size() { return {this->element.size()}; }
