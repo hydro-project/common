@@ -94,7 +94,8 @@ message Value {
 
 // A request to execute a pre-registered function a single time.
 message FunctionCall {
-  // The name of the fucntion to execute.
+
+  // The name of the function to execute.
   string name = 1;
 
   // A unique ID used to match asynchronous requests to responses.
@@ -110,6 +111,9 @@ message FunctionCall {
 
   // Specify what consistency mode this function should be executed in.
   ConsistencyType consistency = 5;
+
+  // Specify what keys are referenced from the KVS
+  repeated string references = 6;
 }
 
 // A serialized representation of a Cloudburst DAG, which consists of a set of
