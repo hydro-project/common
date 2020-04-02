@@ -175,6 +175,9 @@ message DagCall {
   // A logical unique ID associated with the requesting client. This can
   // persist across requests and is used for causal metadata.
   string client_id = 6;
+
+  // Specify what keys are referenced from the KVS
+  repeated string references = 7;
 }
 
 // A message used to respond to most kinds of user requests.
