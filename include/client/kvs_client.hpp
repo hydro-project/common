@@ -67,8 +67,9 @@ class KvsClient : public KvsClientInterface {
     log_->info("Random seed is {}.", seed_);
 
     // bind the two sockets we listen on
-    key_address_puller_.bind(ut_.key_address_bind_address());
-    response_puller_.bind(ut_.response_bind_address());
+    // convert to char* using c_str for compiler compatibility
+    key_address_puller_.bind(ut_.key_address_bind_address().c_str());
+    response_puller_.bind(ut_.response_bind_address().c_str());
 
     pollitems_ = {
         {static_cast<void*>(key_address_puller_), 0, ZMQ_POLLIN, 0},
