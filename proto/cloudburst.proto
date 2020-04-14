@@ -159,6 +159,8 @@ message Dag {
   // (1) Every function must be connected to at least one other function
   // (2) The DAG can have potentially many sources but at most one sink
   repeated Link connections = 3;
+
+  repeated string colocated = 4;
 }
 
 // A list of Values that represents the arguments for a particular function
