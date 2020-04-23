@@ -16,6 +16,17 @@ syntax = "proto3";
 
 import "shared.proto";
 
+// An enum representing whether a function should be executed a single time
+// after all triggers are received or once per trigger received.
+enum ExecutionType {
+  // Signifies that a function should be executed only once.
+  REGULAR = 0;
+
+  // Indicates that a function should be executed once per trigger received and
+  // requeued if an invalid output is detected.
+  MULTIEXEC = 1;
+}
+
 // An enum representing the different types of serializers used primarily for
 // Python values.
 enum SerializerType {
@@ -129,17 +140,31 @@ message Dag {
     string sink = 2;
   }
 
+  // A reference to a function to be executed in this DAG.
+  message FunctionReference {
+    // The name of the function.
+    string name = 1;
+
+    // The type of the function execution (see ExecutionType enum).
+    ExecutionType type = 2;
+
+    // What outputs are considered invalid for this function execution.
+    repeated bytes invalid_results = 3;
+  }
+
   // A unique name used to refer to this DAG.
   string name = 1;
 
   // The set of functions executed as a part of this DAG.
-  repeated string functions = 2;
+  repeated FunctionReference functions = 2;
 
   // The set of links between the functions that comprise this DAG. There are
   // two currently unenforced integrity constraints:
   // (1) Every function must be connected to at least one other function
   // (2) The DAG can have potentially many sources but at most one sink
   repeated Link connections = 3;
+
+  repeated string colocated = 4;
 }
 
 // A list of Values that represents the arguments for a particular function
