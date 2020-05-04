@@ -146,6 +146,12 @@ message Dag {
 
     // What outputs are considered invalid for this function execution.
     repeated bytes invalid_results = 3;
+
+    // Whether this function needs a GPU or not.
+    bool gpu = 4;
+
+    // Whether this function supports batching or not1
+    bool batching = 5;
   }
 
   // A unique name used to refer to this DAG.
