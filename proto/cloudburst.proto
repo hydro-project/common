@@ -150,6 +150,12 @@ message Dag {
 
     // What outputs are considered invalid for this function execution.
     repeated bytes invalid_results = 3;
+
+    // Whether this function needs a GPU or not.
+    bool gpu = 4;
+
+    // Whether this function supports batching or not1
+    bool batching = 5;
   }
 
   // A unique name used to refer to this DAG.
@@ -164,6 +170,9 @@ message Dag {
   // (2) The DAG can have potentially many sources but at most one sink
   repeated Link connections = 3;
 
+  // A list of the all the functions that the scheduler should attempt to
+  // colocate. Colocation is best effort, and DAG creation will still succeed
+  // even if colocation fails.
   repeated string colocated = 4;
 }
 
@@ -201,8 +210,11 @@ message DagCall {
   // persist across requests and is used for causal metadata.
   string client_id = 6;
 
+  // The name of the DAG to continue this request with.
+  Continuation continuation = 7;
+
   // Specify what keys are referenced from the KVS
-  repeated string references = 7;
+  repeated string references = 8;
 }
 
 // A message used to respond to most kinds of user requests.
@@ -219,6 +231,21 @@ message GenericResponse {
   CloudburstError error = 3;
 }
 
+message Continuation {
+  // The name of the DAG to invoke.
+  string name = 1;
+
+  // The ID of the original request.
+  string id = 2;
+
+  // The result of the previous DAG that is used as the input for the next
+  // DAG.
+  bytes result = 3;
+
+  // The DAGCall for the second part of the continuation.
+  DagCall call = 4;
+}
+
 // A message representing a generated schedule for an individual DAG execution
 // request.
 message DagSchedule {
@@ -226,14 +253,14 @@ message DagSchedule {
   string id = 1;
 
   // The actual DAG that we are executing.
-  .Dag dag = 2;
+  Dag dag = 2;
 
   // The function in the DAG the receiver is responsible for executing.
   string target_function = 3;
 
   // The consistency mode used to execute this DAG; if none is specified, the
   // default is NORMAL.
-  .ConsistencyType consistency = 4;
+  ConsistencyType consistency = 4;
 
   // The list of upstream triggers that should be received by this executor
   // before executing its function. This is equivalent to the set of functions
@@ -265,6 +292,9 @@ message DagSchedule {
   // Assigns a timestamp to this schedule based on when it first came into the
   // system -- this is used to calculate end-to-end latency.
   double start_time = 11;
+
+  // The continuation for this schedule to return to the scheduler with.
+  Continuation continuation = 12;
 }
 
 // A trigger that enables a downstream executor to begin running a function
