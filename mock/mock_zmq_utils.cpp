@@ -18,7 +18,14 @@ void MockZmqUtil::send_string(const string &s, zmq::socket_t *socket) {
   sent_messages.push_back(s);
 }
 
-string MockZmqUtil::recv_string(zmq::socket_t *socket) { return ""; }
+string MockZmqUtil::recv_string(zmq::socket_t *socket) {
+  if(responses.empty()){
+    return "";
+  }
+  string response = responses[0];
+  responses.pop_front();
+  return response;
+}
 
 int MockZmqUtil::poll(long timeout, vector<zmq::pollitem_t> *items) {
   return 0;
