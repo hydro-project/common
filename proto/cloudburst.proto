@@ -181,6 +181,9 @@ message Dag {
 message Arguments {
   // The set of arguments.
   repeated Value values = 1;
+
+  // Specify what keys are referenced from the KVS
+  repeated string references = 2;
 }
 
 // A request for a single execution of a previously registered DAG of
@@ -212,9 +215,6 @@ message DagCall {
 
   // The name of the DAG to continue this request with.
   Continuation continuation = 7;
-
-  // Specify what keys are referenced from the KVS
-  repeated string references = 8;
 }
 
 // A message used to respond to most kinds of user requests.
