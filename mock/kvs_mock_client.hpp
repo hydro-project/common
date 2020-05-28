@@ -38,33 +38,63 @@ class KvsMockClient : public KvsClientInterface {
   /**
    * Issue an async PUT request to the KVS for a certain lattice typed value.
    */
-  string put_async(const Key& key, const string& payload,
-                   LatticeType lattice_type) {
-    keys_put_.push_back(key);
-    return get_request_id();
+  string put_async(const Key& key, const string& payload, LatticeType lattice_type) {
+      keys_put_.push_back(key);
+      last_request_type_ = RequestType::PUT;
+      values_[key] = {payload, lattice_type};
+      last_rid_ = get_request_id();
+      return last_rid_;
   }
 
   /**
    * Issue an async GET request to the KVS.
    */
-  void get_async(const Key& key) { keys_get_.push_back(key); }
+  void get_async(const Key& key) {
+      keys_get_.push_back(key);
+      last_request_type_ = RequestType::GET;
+  }
 
-  vector<KeyResponse> receive_async() { return responses_; }
+  vector<KeyResponse> receive_async() {
+      KeyResponse response;
+      if(last_request_type_ == RequestType::PUT){
+          response.set_type(RequestType::PUT);
+          response.set_response_id(last_rid_);
+          auto* tp = response.add_tuples();
+          tp->set_error(AnnaError::NO_ERROR);
+      }
+      if(last_request_type_ == RequestType::GET){
+          response.set_type(RequestType::GET);
+          KeyTuple *tp = response.add_tuples();
+          tp->set_key(keys_get_.back());
+          pair<string, LatticeType> value = values_[keys_get_.back()];
+          tp->set_payload(value.first);
+          tp->set_lattice_type(value.second);
+      }
+      vector<KeyResponse> responses;
+      responses.push_back(response);
+      return responses;
+  }
 
   zmq::context_t* get_context() { return nullptr; }
 
   void clear() {
     keys_put_.clear();
     keys_get_.clear();
-    responses_.clear();
+    values_.clear();
   }
 
   // keep track of the keys being put
   vector<Key> keys_put_;
   // keep track of the keys being get
   vector<Key> keys_get_;
-  // responses to send back
-  vector<KeyResponse> responses_;
+  // // responses to send back
+  // vector<KeyResponse> responses_;
+  // map from keys to values
+  map<Key, pair<string, LatticeType>> values_;
+  // type of last request for client to know what to send back
+  RequestType last_request_type_;
+  // track last rid
+  string last_rid_;
 
  private:
   /**
