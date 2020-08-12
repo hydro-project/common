@@ -49,48 +49,121 @@ class MaxLattice : public Lattice<T> {
 };
 
 template <typename T>
-class SumLattice : public Lattice<vector<T>> {
+struct TimeVector {
+  unsigned long long timestamp{0};
+  vector<T> value;
+
+  TimeVector<T>() {
+    timestamp = 0;
+    value = {};
+    // value = T();
+  }
+
+  // need this because of static cast
+  TimeVector<T>(const unsigned long long &a) {
+    timestamp = 0;
+    value = {};
+    // value = T();
+  }
+
+  TimeVector<T>(const unsigned long long &ts, const vector<T> &v) {
+    timestamp = ts;
+    // memcpy
+    value = v;
+    /*
+        unsigned int size = this->element.value.size();
+        unsigned int e_size = v.size();
+        for(; size<e_size; size++){
+                value.push_back(0);
+        }
+    memcpy(&value[0], &v[0],
+             sizeof(float)*size);*/
+  }
+  unsigned size() { return value.size() + sizeof(unsigned long long); }
+};
+
+template <typename T>
+class SumLattice : public Lattice<TimeVector<T>> {
  protected:
-  void do_merge(const vector<T> &e) {
-    unsigned int size = this->element.size();
-    unsigned int e_size = e.size();
+	/*
+  void do_merge(const TimeVector<T> &e) {
+    unsigned int size = this->element.value.size();
+    unsigned int e_size = e.value.size();
+    if (e.timestamp >= this->element.timestamp) {
+      this->element.timestamp = e.timestamp;
+      this->element.value = e.value;
+
+      //for(; size<e_size; size++){
+      //        this->element.value.push_back(0);
+      //}
+      //memcpy(&this->element.value[0], &e.value[0],
+      //             sizeof(float)*size);
+
+    } else if (e.timestamp <= 0) {
+      for (; size < e_size; size++) {
+        this->element.value.push_back(0);
+      }
+      for (int i = 0; i < e_size; i++) {
+        this->element.value[i] = this->element.value[i] + e.value[i];
+      }
+      this->element.timestamp = this->element.timestamp + 1;
+    }
+  }*/
+
+//for delta-state CRDT
+  void do_merge(const TimeVector<T> &e) {
+    unsigned int size = this->element.value.size();
+    unsigned int e_size = e.value.size();
+
     for (; size < e_size; size++) {
-      this->element.push_back(0);
+      this->element.value.push_back(0);
     }
     for (int i = 0; i < e_size; i++) {
-      this->element[i] = this->element[i] + e[i];
+      this->element.value[i] = this->element.value[i] + e.value[i];
     }
+    this->element.timestamp = this->element.timestamp + e.timestamp;
+
   }
 
  public:
-  SumLattice() : Lattice<vector<T>>(vector<T>()) {}
-  SumLattice(const vector<T> &e) : Lattice<vector<T>>(e) {}
+  SumLattice() : Lattice<TimeVector<T>>(TimeVector<T>()) {}
+  SumLattice(const TimeVector<T> &e) : Lattice<TimeVector<T>>(e) {}
 
-  SumLattice<T> vadd(vector<T> v) const {
-    vector<T> res;
-    unsigned int size = this->element.size();
+  SumLattice<T> vadd(TimeVector<T> v) const {
+    TimeVector<T> res;
+    unsigned int size = this->element.value.size();
     for (int i = 0; i < size; i++) {
-      res.push_back(this->element[i] + v[i]);
+      res.value.push_back(this->element.value[i] + v.value[i]);
     }
+    res.timestamp = this->element.timestamp + v.timestamp;
     return SumLattice<T>(res);
   }
   // for now, all non-merge methods are non-destructive
   SumLattice<T> add(T n) const {
-    vector<T> res;
+    TimeVector<T> res;
     unsigned int size = this->element.size();
     for (int i = 0; i < size; i++) {
-      res.push_back(this->element[i] + n);
+      res.value.push_back(this->element.value[i] + n);
     }
+    res.timestamp = this->element.timestamp + 1;
     return SumLattice<T>(res);
   }
 
   SumLattice<T> subtract(T n) const {
-    vector<T> res;
+    TimeVector<T> res;
     unsigned int size = this->element.size();
     for (int i = 0; i < size; i++) {
-      res.push_back(this->element[i] - n);
+      res.value.push_back(this->element.value[i] - n);
     }
+    res.timestamp = this->element.timestamp + 1;
     return SumLattice<T>(res);
+  }
+
+  TimeVector<T> compare(const TimeVector<T> &e) const {
+	  if(e.timestamp > this->element.timestamp){
+		  return e;
+	  }
+	  return this->element;
   }
 
   MaxLattice<unsigned> size() const { return this->element.size(); }
@@ -241,10 +314,8 @@ class MapLattice : public Lattice<map<K, V>> {
     return SetLattice<K>(res);
   }
 
-  /*V &at(K k) const {
-          return this->element[k];
-  }*/
-  V &at(K k) { return this->element[k]; }
+  V &at(K k) const { return this->element[k]; }
+  // V &at(K k) { return this->element[k]; }
   // -fpermissive
   void remove(K k) {
     auto it = this->element.find(k);
