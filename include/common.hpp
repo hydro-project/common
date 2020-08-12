@@ -132,9 +132,10 @@ inline string serialize(const SumLattice<float>& l) {
    set_value.SerializeToString(&serialized);
    return serialized;*/
   ListValue list_value;
-  google::protobuf::RepeatedField<float> data(l.reveal().begin(),
-                                              l.reveal().end());
+  google::protobuf::RepeatedField<float> data(l.reveal().value.begin(),
+                                              l.reveal().value.end());
   list_value.mutable_values()->Swap(&data);
+  list_value.set_timestamp(l.reveal().timestamp);
 
   string serialized;
   list_value.SerializeToString(&serialized);
@@ -259,12 +260,13 @@ inline SumLattice<float> deserialize_sum(const string& serialized) {
   ListValue s;
   s.ParseFromString(serialized);
   int size = s.values_size();
+
   vector<float> result(size);
   memcpy(&result[0], s.mutable_values()->mutable_data(), sizeof(float) * size);
+
   // from s -> vector float
 
-  return SumLattice<float>(result);
-  ;
+  return SumLattice<float>(TimeVector<float>(s.timestamp(), result));
 }
 
 inline OrderedSetLattice<string> deserialize_ordered_set(
