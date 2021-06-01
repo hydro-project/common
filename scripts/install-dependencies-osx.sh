@@ -15,7 +15,7 @@
 #  limitations under the License.
 
 LCOV_VERSION=1.13
-PROTO_V=3.9.1
+PROTO_V=3.6.1
 
 if [ -z "$(command -v brew)" ]; then
   echo "This script requires having homebrew installed."
