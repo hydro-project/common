@@ -135,7 +135,7 @@ if [ -z "$(command -v protoc)" ]; then
     source ~/.bashrc
   fi
 
-  cd .. && rm -rf protobuf-3.5.1*
+  cd .. && rm -rf protobuf-${PROTO_V}*
 fi
 
 echo "All dependencies installed!"
